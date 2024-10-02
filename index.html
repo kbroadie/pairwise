@@ -6,7 +6,7 @@
 <title>Survey</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Platypi:ital,wght@0,300..800;1,300..800&family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap');
-body { background-color: #23272a; color: #919395; font-family: Arial, sans-serif; display: flex; flex-direction: column; justify-content: space-between; height: 100vh; margin: 0; }
+body { background-color: #23272a; color: #919395; font-family: 'Radio Canada', sans-serif; display: flex; flex-direction: column; justify-content: space-between; height: 100vh; margin: 0; }
 main { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; }
 .term-pair { display: flex; justify-content: center; align-items: center; height: 60vh; position: relative; margin-top: -10vh; }
 .term-button { width: 40%; height: 80%; margin: 0 15px; padding: 40px; font-size: 3.5em; background-color: #1c2124; color: #919395; border: none; border-radius: 20px; cursor: pointer; position: relative; font-family: 'Platypi', sans-serif; font-weight: 300; }
@@ -14,69 +14,96 @@ main { flex: 1; display: flex; flex-direction: column; justify-content: center; 
 .term-button:focus { outline: none; }
 #results { text-align: left; margin-top: 20px; }
 .circle-container { display: flex; justify-content: center; align-items: center; position: relative; height: 10vh; width: 100%; }
-.circle { display: flex; justify-content: center; align-items: center; font-size: 2.5em; width: 3em; height: 3em; margin: 0 0.1em; border-radius: 0%; cursor: pointer; font-family: 'Radio Canada', sans-serif; font-style: Regular; font-weight: 500; transition: background-color 0.3s, opacity 0.3s, color 0.3s; transition: background-color 0.3s, opacity 0.3s, color 0.3s, transform 0.3s; }
+.circle { display: flex; justify-content: center; align-items: center; font-size: 2.5em; width: 3em; height: 3em; margin: 0 0.1em; border-radius: 5px; cursor: pointer; font-family: 'Radio Canada', sans-serif; font-style: Regular; font-weight: 500; transition: background-color 0.3s, opacity 0.3s, color 0.3s, transform 0.3s; }
 .circle:not(.ghost):hover {
   transform: scale(1.05);
   background-color: #00660f !important;
   color: #ffffff !important;
 }
-  .circle.ghost { opacity: 0.5; pointer-events: none; }
-  .term-pair:not(:has(.term-button.selected)) ~ .circle-container .circle:hover {
+.circle.ghost { opacity: 0.5; pointer-events: none; }
+.term-pair:not(:has(.term-button.selected)) ~ .circle-container .circle:hover {
   transform: none;
   background-color: inherit !important;
   color: inherit !important;
 }
-#next-button, #previous-button { font-size: 1em; display: block; padding: 18px 20px; background-color: transparent; color: #919395; border: 0.5px solid #919395; border-radius: 5px; cursor: pointer; position: absolute; margin-top: 80px; margin-bottom: 80px; }
-#previous-button { left: 10%; }
-#next-button { right: 10%; }
+#next-button, #previous-button, #restart-button { font-size: 1em; display: block; padding: 18px 20px; background-color: transparent; color: #919395; border: 0.5px solid #919395; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
+#next-button:hover, #previous-button:hover, #restart-button:hover { background-color: #00660f; color: #ffffff; }
+#previous-button { position: absolute; bottom: 40px; left: 20px; }
+#next-button { position: absolute; bottom: 40px; right: 20px; }
+#restart-button { margin: 20px auto; }
 #progress-bar { width: 100%; background-color: #333333; height: 10px; position: absolute; bottom: 0; }
 #count { text-align: right; color: #666666; margin-bottom: 10px; margin-right: 10px; opacity: 0.5; position: absolute; bottom: 0px; right: 0; }
 #progress { width: 0; height: 100%; background-color: #00660f; }
-#auto-advance-container { position: absolute; bottom: 10px; left: 10px; color: #666666; opacity: 0.5; }
-#auto-advance-checkbox { margin-right: 5px; }
+#controls-container { position: absolute; top: 10px; right: 10px; display: flex; align-items: center; }
+#auto-advance-button, #edit-terms-button { padding: 10px; background-color: #1c2124; color: #919395; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; transition: background-color 0.3s, color 0.3s; }
+#auto-advance-button.active, #edit-terms-button:hover { background-color: #00660f; color: #ffffff; }
+#edit-terms-modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+.modal-content { background-color: #23272a; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; font-family: 'Radio Canada', sans-serif; }
+#terms-list { width: 100%; height: 200px; background-color: #1c2124; color: #919395; border: none; margin-bottom: 10px; border-radius: 5px; padding: 10px; font-family: 'Radio Canada', sans-serif; }
+.modal-button { padding: 10px; margin: 5px; background-color: #1c2124; color: #919395; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
+.modal-button:hover { background-color: #00660f; color: #ffffff; }
+#results table { width: 60%; margin: 20px auto; border-collapse: collapse; font-family: 'Radio Canada', sans-serif; }
+#results th, #results td { border: 1px solid #1c2124; padding: 10px; }
+#results th { text-align: left; background-color: #1c2124; }
+#results tr:nth-child(even) { background-color: #1c2124; }
+#results h2 { font-family: 'Platypi', sans-serif; text-align: center; margin-top: 20px; color: #ffffff; }
 </style>
 </head>
 <body>
 <main>
 <div id="survey"></div>
 <div id="count"></div>
-<div id="auto-advance-container">
-  <input type="checkbox" id="auto-advance-checkbox">
-  <label for="auto-advance-checkbox">Auto-Advance</label>
+<div id="controls-container">
+  <button id="auto-advance-button">Auto-Advance</button>
+  <button id="edit-terms-button">Edit Terms</button>
 </div>
 <div id="progress-bar"><div id="progress"></div></div>
 <div id="results"></div>
 </main>
-<script>
 
+<div id="edit-terms-modal">
+  <div class="modal-content">
+    <h2>Edit Terms</h2>
+    <p>Add, remove, or edit terms. Each term should be on a new line.</p>
+    <textarea id="terms-list"></textarea>
+    <button class="modal-button" id="save-terms">Save Changes</button>
+    <button class="modal-button" id="cancel-edit">Cancel</button>
+  </div>
+</div>
+
+<script>
 // Initialization and Setup
 
-const terms = [
-"Reduce Congestion",
-"Reduce Accidents",
-"Improve Pavement Condition",
-"Fill System Gaps",
-"Encourage Infill Development",
-"Improve Climate & Disaster Resiliency",
-"Improve Access In & Out of the Coachella Valley",
-"Add Pedestrian & Bicycle Routes",
-"Improve Air Quality, Environment, and Aesthetics",
-"Improve Access In & Out of Events",
-"Build Infrastructure in Disadvantaged Communities",
-"Improve Mobility for Disadvantaged Commuters"
-],
-responses = [],
+let terms = [
+  "Reduce Congestion",
+  "Reduce Accidents",
+  "Improve Pavement Condition",
+  "Fill System Gaps",
+  "Encourage Infill Development",
+  "Improve Climate & Disaster Resiliency",
+  "Improve Access In & Out of the Coachella Valley",
+  "Add Pedestrian & Bicycle Routes",
+  "Improve Air Quality, Environment, and Aesthetics",
+  "Improve Access In & Out of Events",
+  "Build Infrastructure in Disadvantaged Communities",
+  "Improve Mobility for Disadvantaged Commuters"
+];
+let responses = [],
 pairs = [];
 let currentPairIndex = 0,
 selectedCircleIndices = [];
+let autoAdvanceEnabled = false;
 
 function createSurvey() {
+  pairs = [];
   for (let e = 0; e < terms.length; e++)
     for (let t = e + 1; t < terms.length; t++) pairs.push([terms[e], terms[t]]);
   selectedCircleIndices = Array(pairs.length).fill(null);
+  responses = [];
+  currentPairIndex = 0;
   showNextPair();
 }
-  
+
 // Survey Navigation
 
 function showNextPair() {
@@ -99,7 +126,7 @@ function showNextPair() {
       </div>
       <div class="navigation-buttons">
         <button id="previous-button" style="display: ${currentPairIndex > 0 ? "block" : "none"};" onclick="showPreviousPair()">< BACK</button>
-        <button id="next-button" onclick="advanceToNextPair()">NEXT ></button>
+        <button id="next-button" onclick="advanceToNextPair()">${currentPairIndex === pairs.length - 1 ? "See Results" : "NEXT >"}</button>
       </div>
     `),
     e.appendChild(n),
@@ -183,11 +210,11 @@ function selectCircle(e) {
   updateNextButtonVisibility();
   updateCircleColors();
   
-  // Auto-advance if the checkbox is checked, with a 500ms delay
-  if (document.getElementById("auto-advance-checkbox").checked) {
+  // Auto-advance if enabled, with a 300ms delay
+  if (autoAdvanceEnabled) {
     setTimeout(() => {
       advanceToNextPair();
-    }, 500);
+    }, 300);
   }
 }
 
@@ -213,7 +240,7 @@ function deselectCircle() {
   circles.forEach(circle => circle.classList.remove("selected"));
   selectedCircleIndices[currentPairIndex] = null;
 }
-  
+
 // UI Updates
 
 function updateCircleColors() {
@@ -317,18 +344,18 @@ function showResults() {
 
   // Create the results table
   let tableHTML = `
-    <table style="width: 40%; margin: 20px auto; border-collapse: collapse;">
+    <table>
       <thead>
         <tr>
-          <th style="border: 1px solid #1c2124; padding: 10px; text-align: left; background-color: #1c2124;">Term</th>
-          <th style="border: 1px solid #1c2124; padding: 10px; text-align: right; background-color: #1c2124;">Total Score</th>
+          <th>Term</th>
+          <th style="text-align: right;">Total Score</th>
         </tr>
       </thead>
       <tbody>
-        ${sortedTerms.map(([term, score]) => `
+        ${sortedTerms.map(([term, score], index) => `
           <tr>
-            <td style="border: 1px solid #1c2124; padding: 10px;">${term}</td>
-            <td style="border: 1px solid #1c2124; padding: 10px; text-align: right;">${score}</td>
+            <td>${term}</td>
+            <td style="text-align: right;">${score}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -337,15 +364,19 @@ function showResults() {
 
   // Update the results container
   resultsContainer.innerHTML = `
-    <h2 style="text-align: center; margin-top: 20px;">Results</h2>
+    <h2>Results</h2>
     ${tableHTML}
+    <button id="restart-button">Restart Survey</button>
   `;
 
   // Append the results container to the main content
   mainContent.appendChild(resultsContainer);
 
+  // Add event listener for the restart button
+  document.getElementById('restart-button').addEventListener('click', restartSurvey);
+
   // Remove unnecessary elements
-  let elementsToRemove = ['#survey', '#count', '#auto-advance-container', '#progress-bar'];
+  let elementsToRemove = ['#survey', '#count', '#controls-container', '#progress-bar'];
   elementsToRemove.forEach(selector => {
     let element = document.querySelector(selector);
     if (element) element.remove();
@@ -367,6 +398,36 @@ function calculateTermScores() {
   });
 
   return termScores;
+}
+
+function restartSurvey() {
+  // Reset survey data
+  responses = [];
+  selectedCircleIndices = [];
+  currentPairIndex = 0;
+
+  // Recreate the survey structure
+  createSurvey();
+
+  // Update the main content
+  let mainContent = document.querySelector('main');
+  mainContent.innerHTML = `
+    <div id="survey"></div>
+    <div id="count"></div>
+    <div id="controls-container">
+      <button id="auto-advance-button">Auto-Advance</button>
+      <button id="edit-terms-button">Edit Terms</button>
+    </div>
+    <div id="progress-bar"><div id="progress"></div></div>
+    <div id="results"></div>
+  `;
+
+  // Reattach event listeners
+  document.getElementById('auto-advance-button').addEventListener('click', toggleAutoAdvance);
+  document.getElementById('edit-terms-button').addEventListener('click', openEditTermsModal);
+
+  // Show the first pair
+  showNextPair();
 }
 
 // Utility Functions
@@ -428,11 +489,50 @@ function getSelectedTermIndex() {
   if (termButtons[1].classList.contains("selected")) return 1;
   return -1;
 }
-  
+
+// Auto-advance functionality
+
+function toggleAutoAdvance() {
+  autoAdvanceEnabled = !autoAdvanceEnabled;
+  let button = document.getElementById('auto-advance-button');
+  if (autoAdvanceEnabled) {
+    button.classList.add('active');
+  } else {
+    button.classList.remove('active');
+  }
+}
+
+// Edit terms functionality
+
+function openEditTermsModal() {
+  document.getElementById('edit-terms-modal').style.display = 'block';
+  document.getElementById('terms-list').value = terms.join('\n');
+}
+
+function closeEditTermsModal() {
+  document.getElementById('edit-terms-modal').style.display = 'none';
+}
+
+function saveTerms() {
+  let newTerms = document.getElementById('terms-list').value.split('\n').filter(term => term.trim() !== '');
+  if (newTerms.length < 2) {
+    alert('You need at least two terms for comparison.');
+    return;
+  }
+  terms = newTerms;
+  closeEditTermsModal();
+  createSurvey();
+}
+
+// Event Listeners
+document.getElementById('edit-terms-button').addEventListener('click', openEditTermsModal);
+document.getElementById('cancel-edit').addEventListener('click', closeEditTermsModal);
+document.getElementById('save-terms').addEventListener('click', saveTerms);
+document.getElementById('auto-advance-button').addEventListener('click', toggleAutoAdvance);
+
 // Initialization
-  
 createSurvey();
-  
+
 </script>
 </body>
 </html>
