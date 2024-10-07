@@ -1,538 +1,87 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Survey</title>
+<title>Pairwise Survey</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Platypi:ital,wght@0,300..800;1,300..800&family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap');
-body { background-color: #23272a; color: #919395; font-family: 'Radio Canada', sans-serif; display: flex; flex-direction: column; justify-content: space-between; height: 100vh; margin: 0; }
+body { background-color: #23272a; color: #919395; font-family: Arial, sans-serif; display: flex; flex-direction: column; justify-content: space-between; height: 100vh; margin: 0; }
 main { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; }
-.term-pair { display: flex; justify-content: center; align-items: center; height: 60vh; position: relative; margin-top: -10vh; }
-.term-button { width: 40%; height: 80%; margin: 0 15px; padding: 40px; font-size: 3.5em; background-color: #1c2124; color: #919395; border: none; border-radius: 20px; cursor: pointer; position: relative; font-family: 'Platypi', sans-serif; font-weight: 300; }
-.term-button.selected { background-color: #00660f; color: #ffffff; }
+.term-pair { display: flex; justify-content: center; align-items: center; height: 66vh; position: relative; margin-top: -10vh; }
+.term-button { width: 40%; height: 80%; margin: 0 15px; padding: 40px; font-size: clamp(2rem, 4vw, 4rem); background-color: #1c2124; color: #919395; border: none; border-radius: 20px; cursor: pointer; position: relative; font-family: 'Platypi', sans-serif; font-weight: 300; }
+.term-button.selected { background-color: #00660f; color: #fff; }
 .term-button:focus { outline: none; }
 #results { text-align: left; margin-top: 20px; }
-.circle-container { display: flex; justify-content: center; align-items: center; position: relative; height: 10vh; width: 100%; }
-.circle { display: flex; justify-content: center; align-items: center; font-size: 2.5em; width: 3em; height: 3em; margin: 0 0.1em; border-radius: 5px; cursor: pointer; font-family: 'Radio Canada', sans-serif; font-style: Regular; font-weight: 500; transition: background-color 0.3s, opacity 0.3s, color 0.3s, transform 0.3s; }
-.circle:not(.ghost):hover {
-  transform: scale(1.05);
-  background-color: #00660f !important;
-  color: #ffffff !important;
-}
+.circle-container { display: flex; justify-content: center; align-items: center; position: relative; height: 6vh; width: 80vw; margin: 0.4em auto; }
+.circle { display: flex; justify-content: center; align-items: center; font-size: 3em; width: 12.5%; aspect-ratio: 1 / 1; margin: 0 0.2em; border-radius: 10%; cursor: pointer; font-family: 'Radio Canada', sans-serif; font-style: Regular; font-weight: 500; transition: background-color 0.3s, opacity 0.3s, color 0.3s, transform 0.3s; }
+.circle:not(.ghost):hover { transform: scale(1.05); background-color: #00660f !important; color: #fff !important; }
 .circle.ghost { opacity: 0.5; pointer-events: none; }
-.term-pair:not(:has(.term-button.selected)) ~ .circle-container .circle:hover {
-  transform: none;
-  background-color: inherit !important;
-  color: inherit !important;
-}
-#next-button, #previous-button, #restart-button { font-size: 1em; display: block; padding: 18px 20px; background-color: transparent; color: #919395; border: 0.5px solid #919395; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
-#next-button:hover, #previous-button:hover, #restart-button:hover { background-color: #00660f; color: #ffffff; }
-#previous-button { position: absolute; bottom: 40px; left: 20px; }
-#next-button { position: absolute; bottom: 40px; right: 20px; }
-#restart-button { margin: 20px auto; }
-#progress-bar { width: 100%; background-color: #333333; height: 10px; position: absolute; bottom: 0; }
-#count { text-align: right; color: #666666; margin-bottom: 10px; margin-right: 10px; opacity: 0.5; position: absolute; bottom: 0px; right: 0; }
+.term-pair:not(:has(.term-button.selected)) ~ .circle-container .circle:hover { transform: none; background-color: inherit !important; color: inherit !important; }
+#next-button, #previous-button { font-size: 1em; display: flex; align-items: center; justify-content: center; color: #919395; border: none; border-radius: 0; position: fixed; top: 0; height: 100vh; width: 9vw; transition: background 0.3s, opacity 0.3s; cursor: pointer; z-index: 1000; }
+#previous-button { left: 0; height: 95vh; color: transparent; background: linear-gradient(90deg, rgba(70,78,84,0) 0%, rgba(70,78,84,0) 100%); }
+#next-button { right: 0; color: transparent; background: linear-gradient(270deg, rgba(70,78,84,.4) 0%, rgba(70,78,84,0) 100%); }
+#progress-bar { width: 100%; background-color: #333; height: 10px; position: absolute; bottom: 0; z-index: 1001; }
+#count { text-align: right; color: #666; margin-bottom: 15px; margin-right: 10px; opacity: 0.5; position: absolute; bottom: 0; right: 0; z-index: 1001; }
 #progress { width: 0; height: 100%; background-color: #00660f; }
-#controls-container { position: absolute; top: 10px; right: 10px; display: flex; align-items: center; }
-#auto-advance-button, #edit-terms-button { padding: 10px; background-color: #1c2124; color: #919395; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; transition: background-color 0.3s, color 0.3s; }
-#auto-advance-button.active, #edit-terms-button:hover { background-color: #00660f; color: #ffffff; }
-#edit-terms-modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-.modal-content { background-color: #23272a; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; font-family: 'Radio Canada', sans-serif; }
-#terms-list { width: 100%; height: 200px; background-color: #1c2124; color: #919395; border: none; margin-bottom: 10px; border-radius: 5px; padding: 10px; font-family: 'Radio Canada', sans-serif; }
-.modal-button { padding: 10px; margin: 5px; background-color: #1c2124; color: #919395; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
-.modal-button:hover { background-color: #00660f; color: #ffffff; }
-#results table { width: 60%; margin: 20px auto; border-collapse: collapse; font-family: 'Radio Canada', sans-serif; }
-#results th, #results td { border: 1px solid #1c2124; padding: 10px; }
-#results th { text-align: left; background-color: #1c2124; }
-#results tr:nth-child(even) { background-color: #1c2124; }
-#results h2 { font-family: 'Platypi', sans-serif; text-align: center; margin-top: 20px; color: #ffffff; }
+#auto-advance-container { position: absolute; bottom: 20px; left: 10px; width: 30px; height: 30px; z-index: 1001; }
+#auto-advance-icon { width: 100%; height: 100%; cursor: pointer; fill: #666; opacity: 0.5; transition: fill 0.3s, opacity 0.3s; }
+#auto-advance-icon:hover { fill: #666; opacity: 1; }
+#auto-advance-icon.active { fill: #666; opacity: 1; }
+#fullscreen-container { position: absolute; bottom: 20px; left: 50px; width: 30px; height: 30px; z-index: 1001; }
+#fullscreen-icon { width: 100%; height: 100%; cursor: pointer; fill: #666; opacity: 0.5; transition: fill 0.3s, opacity 0.3s; }
+#fullscreen-icon:hover { fill: #666; opacity: 1; }
+#chart-container { width: 70%; height: 90vh; margin: 20px auto; background-color: #1c2124; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 </head>
 <body>
+<button id="previous-button">&#9664;</button>
+<button id="next-button">&#9654;</button>
 <main>
 <div id="survey"></div>
 <div id="count"></div>
-<div id="controls-container">
-  <button id="auto-advance-button">Auto-Advance</button>
-  <button id="edit-terms-button">Edit Terms</button>
-</div>
+<div id="auto-advance-container"><svg id="auto-advance-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 105.26 100.63" width="30" height="30"><rect width="100%" height="100%" fill="transparent" /><g id="Layer_1-2"><path d="M32.47,70.52h10.64l3.23-11.65h13l3.5,11.65h11.05l-14.08-45.4h-13.47l-13.88,45.4ZM50.52,41.56c.74-2.63,1.42-6.06,2.09-8.76h.13c.67,2.69,1.48,6.06,2.29,8.76l2.83,9.63h-10.04l2.7-9.63Z"/><path d="M52.9,92.55c-17.46,0-33.16-10.93-39.38-27l6.19-1.97-15.28-13.93L0,69.85l5.8-1.85c7.29,19.39,26.12,32.63,47.1,32.63,22.29,0,42.17-14.96,48.34-36.37l-7.76-2.24c5.18,17.97-21.87,30.52-40.58,30.52Z"/><path d="M52.9,8.08c16.71,0,31.8,10.02,38.53,24.96l-5.87,1.87,15.28,13.93,4.42-20.2-6.08,1.94C91.36,12.31,73.12,0,52.9,0,30.6,0,10.72,14.96,4.56,36.37l7.76,2.24c5.18-17.97,21.86-30.52,40.58-30.52Z"/></g></svg></div>
+<div id="fullscreen-container"><svg id="fullscreen-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></div>
 <div id="progress-bar"><div id="progress"></div></div>
 <div id="results"></div>
 </main>
-
-<div id="edit-terms-modal">
-  <div class="modal-content">
-    <h2>Edit Terms</h2>
-    <p>Add, remove, or edit terms. Each term should be on a new line.</p>
-    <textarea id="terms-list"></textarea>
-    <button class="modal-button" id="save-terms">Save Changes</button>
-    <button class="modal-button" id="cancel-edit">Cancel</button>
-  </div>
-</div>
-
 <script>
-// Initialization and Setup
-
-let terms = [
-  "Reduce Congestion",
-  "Reduce Accidents",
-  "Improve Pavement Condition",
-  "Fill System Gaps",
-  "Encourage Infill Development",
-  "Improve Climate & Disaster Resiliency",
-  "Improve Access In & Out of the Coachella Valley",
-  "Add Pedestrian & Bicycle Routes",
-  "Improve Air Quality, Environment, and Aesthetics",
-  "Improve Access In & Out of Events",
-  "Build Infrastructure in Disadvantaged Communities",
-  "Improve Mobility for Disadvantaged Commuters"
-];
-let responses = [],
-pairs = [];
-let currentPairIndex = 0,
-selectedCircleIndices = [];
-let autoAdvanceEnabled = false;
-
-function createSurvey() {
-  pairs = [];
-  for (let e = 0; e < terms.length; e++)
-    for (let t = e + 1; t < terms.length; t++) pairs.push([terms[e], terms[t]]);
-  selectedCircleIndices = Array(pairs.length).fill(null);
-  responses = [];
-  currentPairIndex = 0;
-  showNextPair();
-}
-
-// Survey Navigation
-
-function showNextPair() {
-  let e = document.getElementById("survey");
-  if (((e.innerHTML = ""), currentPairIndex < pairs.length)) {
-    let [t, r] = pairs[currentPairIndex],
-    n = document.createElement("div");
-    n.classList.add("question"),
-    (n.innerHTML = `
-      <div class="term-pair">
-        <button class="term-button ${responses[currentPairIndex] === t ? "selected" : ""}" onclick="selectTerm('${t}', 0)" aria-label="Select ${t}">${t}</button>
-        <button class="term-button ${responses[currentPairIndex] === r ? "selected" : ""}" onclick="selectTerm('${r}', 1)" aria-label="Select ${r}">${r}</button>
-      </div>
-      <div class="circle-container">
-        ${Array.from({ length: 8 }).map((e, n) => `
-          <div class="circle circle-${getCircleNumber(n)} ${selectedCircleIndices[currentPairIndex] === n ? "selected" : ""}" 
-               onclick="selectCircle(${n})" 
-               style="${4 === n ? "margin-left: 30px;" : ""}">${getCircleNumber(n)}</div>
-        `).join("")}
-      </div>
-      <div class="navigation-buttons">
-        <button id="previous-button" style="display: ${currentPairIndex > 0 ? "block" : "none"};" onclick="showPreviousPair()">< BACK</button>
-        <button id="next-button" onclick="advanceToNextPair()">${currentPairIndex === pairs.length - 1 ? "See Results" : "NEXT >"}</button>
-      </div>
-    `),
-    e.appendChild(n),
-    updateCount(),
-    updateProgressBar();
-    updateTermButtonColors();
-    updateCircleColors();
-    updateNextButtonVisibility();
-  } else showResults();
-}
-
-function showPreviousPair() {
-  currentPairIndex > 0 && (currentPairIndex--, showNextPair());
-}
-  
-function advanceToNextPair() {
-  if (responses[currentPairIndex] && selectedCircleIndices[currentPairIndex] !== null) {
-    currentPairIndex++;
-    if (currentPairIndex >= pairs.length) {
-      showResults();
-    } else {
-      showNextPair();
-    }
-  }
-}
-
-// User Interaction
-
-function selectTerm(e, termIndex) {
-  let termButtons = document.querySelectorAll(".term-button");
-  let wasSelected = termButtons[termIndex].classList.contains("selected");
-  let otherTermWasSelected = termButtons[1 - termIndex].classList.contains("selected");
-
-  termButtons.forEach((button, index) => {
-    if (index === termIndex) {
-      button.classList.toggle("selected");
-    } else {
-      button.classList.remove("selected");
-    }
-  });
-
-  if (wasSelected) {
-    responses[currentPairIndex] = undefined;
-    deselectCircle(); // Deselect circle when deselecting a term
-  } else {
-    responses[currentPairIndex] = e;
-    if (otherTermWasSelected) {
-      deselectCircle(); // Deselect circle when switching to the other term
-    }
-  }
-
-  updateTermButtonColors();
-  updateNextButtonVisibility();
-  updateCircleColors();
-}
-
-function selectCircle(e) {
-  let circles = document.querySelectorAll(".circle");
-  let wasSelected = false;
-  
-  circles.forEach((circle, index) => {
-    if (index === e) {
-      if (circle.classList.contains("selected")) {
-        circle.classList.remove("selected");
-        wasSelected = true;
-      } else {
-        circle.classList.add("selected");
-        selectAssociatedTerm(index);
-      }
-    } else {
-      circle.classList.remove("selected");
-    }
-  });
-  
-  if (wasSelected) {
-    selectedCircleIndices[currentPairIndex] = null;
-  } else {
-    selectedCircleIndices[currentPairIndex] = e;
-  }
-  
-  updateNextButtonVisibility();
-  updateCircleColors();
-  
-  // Auto-advance if enabled, with a 300ms delay
-  if (autoAdvanceEnabled) {
-    setTimeout(() => {
-      advanceToNextPair();
-    }, 300);
-  }
-}
-
-function selectAssociatedTerm(circleIndex) {
-  let termButtons = document.querySelectorAll(".term-button");
-  let termIndex = circleIndex < 4 ? 0 : 1;
-  let term = pairs[currentPairIndex][termIndex];
-  
-  termButtons.forEach((button, index) => {
-    if (index === termIndex) {
-      button.classList.add("selected");
-    } else {
-      button.classList.remove("selected");
-    }
-  });
-  
-  responses[currentPairIndex] = term;
-  updateTermButtonColors();
-}
-
-function deselectCircle() {
-  let circles = document.querySelectorAll(".circle");
-  circles.forEach(circle => circle.classList.remove("selected"));
-  selectedCircleIndices[currentPairIndex] = null;
-}
-
-// UI Updates
-
-function updateCircleColors() {
-  let circles = document.querySelectorAll(".circle");
-  const selectedColor = "#00660f";
-  const pageBackgroundColor = "#23272a";
-  let selectedTermIndex = getSelectedTermIndex();
-
-  circles.forEach((circle, index) => {
-    let circleNumber = getCircleNumber(index);
-    let baseColorHSL = {
-      h: 34 - (circleNumber - 1) * 6,
-      s: 90 - (circleNumber - 1) * 10,
-      l: 40
-    };
-    
-    if (index === selectedCircleIndices[currentPairIndex]) {
-      circle.style.backgroundColor = selectedColor;
-      circle.style.color = "#ffffff";
-      circle.classList.remove("ghost");
-    } else {
-      let opacity = 0;
-      if (selectedTermIndex === -1) {
-        opacity = 0;
-      } else if ((index < 4 && selectedTermIndex === 0) || (index >= 4 && selectedTermIndex === 1)) {
-        opacity = 1;
-      }
-      
-      circle.style.backgroundColor = `hsla(${baseColorHSL.h}, ${baseColorHSL.s}%, ${baseColorHSL.l}%, ${opacity})`;
-      
-      // Calculate text color based on the background
-      let textColor;
-      if (opacity === 0) {
-        // Use page background color with increased luminosity when circle background is transparent
-        textColor = increaseLuminosity(hexToHSL(pageBackgroundColor), 30);
-      } else {
-        // Use circle's own color with increased luminosity when circle background is opaque
-        textColor = increaseLuminosity(baseColorHSL, 30);
-      }
-      circle.style.color = textColor;
-      
-      // Apply ghost class based on selected term
-      if (selectedTermIndex === -1 || (index < 4 && selectedTermIndex === 0) || (index >= 4 && selectedTermIndex === 1)) {
-        circle.classList.remove("ghost");
-      } else {
-        circle.classList.add("ghost");
-      }
-    }
-
-    circle.style.opacity = circle.classList.contains("ghost") ? "0.5" : "1";
-  });
-}
-  
-function updateNextButtonVisibility() {
-  let e = document.getElementById("next-button");
-  if (responses[currentPairIndex] && selectedCircleIndices[currentPairIndex] !== null) {
-    e.style.display = "block";
-  } else {
-    e.style.display = "none";
-  }
-}
-  
-function updateTermButtonColors() {
-  let termButtons = document.querySelectorAll(".term-button");
-  const nonSelectedColor = "#1c2124";
-  const selectedColor = "#00660f";
-
-  termButtons.forEach((button) => {
-    if (button.classList.contains("selected")) {
-      button.style.backgroundColor = selectedColor;
-      button.style.color = "#ffffff";
-    } else {
-      button.style.backgroundColor = nonSelectedColor;
-      button.style.color = increaseLuminosity(hexToHSL(nonSelectedColor), 80);
-    }
-  });
-}
-  
-function updateCount() {
-  let e = document.getElementById("count");
-  e.innerHTML = `Pair ${currentPairIndex + 1} of ${pairs.length}`;
-}
-
-function updateProgressBar() {
-  let e = document.getElementById("progress"),
-  t = ((currentPairIndex + 1) / pairs.length) * 100;
-  e.style.width = `${t}%`;
-}
-
-// Results Display
-
-function showResults() {
-  let mainContent = document.querySelector('main');
-  let resultsContainer = document.getElementById("results");
-  let termScores = calculateTermScores();
-  let sortedTerms = Object.entries(termScores)
-    .sort((a, b) => b[1] - a[1]);
-
-  // Clear the main content
-  mainContent.innerHTML = '';
-
-  // Create the results table
-  let tableHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Term</th>
-          <th style="text-align: right;">Total Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${sortedTerms.map(([term, score], index) => `
-          <tr>
-            <td>${term}</td>
-            <td style="text-align: right;">${score}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  // Update the results container
-  resultsContainer.innerHTML = `
-    <h2>Results</h2>
-    ${tableHTML}
-    <button id="restart-button">Restart Survey</button>
-  `;
-
-  // Append the results container to the main content
-  mainContent.appendChild(resultsContainer);
-
-  // Add event listener for the restart button
-  document.getElementById('restart-button').addEventListener('click', restartSurvey);
-
-  // Remove unnecessary elements
-  let elementsToRemove = ['#survey', '#count', '#controls-container', '#progress-bar'];
-  elementsToRemove.forEach(selector => {
-    let element = document.querySelector(selector);
-    if (element) element.remove();
-  });
-}
-
-function calculateTermScores() {
-  let termScores = {};
-
-  // Initialize scores for all terms
-  terms.forEach(term => termScores[term] = 0);
-
-  // Calculate scores
-  responses.forEach((selectedTerm, index) => {
-    if (selectedTerm !== undefined && selectedCircleIndices[index] !== null) {
-      let score = getCircleNumber(selectedCircleIndices[index]);
-      termScores[selectedTerm] += score;
-    }
-  });
-
-  return termScores;
-}
-
-function restartSurvey() {
-  // Reset survey data
-  responses = [];
-  selectedCircleIndices = [];
-  currentPairIndex = 0;
-
-  // Recreate the survey structure
-  createSurvey();
-
-  // Update the main content
-  let mainContent = document.querySelector('main');
-  mainContent.innerHTML = `
-    <div id="survey"></div>
-    <div id="count"></div>
-    <div id="controls-container">
-      <button id="auto-advance-button">Auto-Advance</button>
-      <button id="edit-terms-button">Edit Terms</button>
-    </div>
-    <div id="progress-bar"><div id="progress"></div></div>
-    <div id="results"></div>
-  `;
-
-  // Reattach event listeners
-  document.getElementById('auto-advance-button').addEventListener('click', toggleAutoAdvance);
-  document.getElementById('edit-terms-button').addEventListener('click', openEditTermsModal);
-
-  // Show the first pair
-  showNextPair();
-}
-
-// Utility Functions
-
-function hexToHSL(hex) {
-  let r = 0, g = 0, b = 0;
-  if (hex.length == 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (hex.length == 7) {
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
-  }
-  r /= 255;
-  g /= 255;
-  b /= 255;
-  let cmin = Math.min(r,g,b),
-      cmax = Math.max(r,g,b),
-      delta = cmax - cmin,
-      h = 0,
-      s = 0,
-      l = 0;
-
-  if (delta == 0)
-    h = 0;
-  else if (cmax == r)
-    h = ((g - b) / delta) % 6;
-  else if (cmax == g)
-    h = (b - r) / delta + 2;
-  else
-    h = (r - g) / delta + 4;
-
-  h = Math.round(h * 60);
-
-  if (h < 0)
-    h += 360;
-
-  l = (cmax + cmin) / 2;
-  s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-  s = +(s * 100).toFixed(1);
-  l = +(l * 100).toFixed(1);
-
-  return {h, s, l};
-}
-  
-function increaseLuminosity(hsl, percent) {
-  return `hsl(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + percent, 100)}%)`;
-}
-
-function getCircleNumber(e) {
-  return [4, 3, 2, 1, 1, 2, 3, 4][e];
-}
-
-function getSelectedTermIndex() {
-  let termButtons = document.querySelectorAll(".term-button");
-  if (termButtons[0].classList.contains("selected")) return 0;
-  if (termButtons[1].classList.contains("selected")) return 1;
-  return -1;
-}
-
-// Auto-advance functionality
-
-function toggleAutoAdvance() {
-  autoAdvanceEnabled = !autoAdvanceEnabled;
-  let button = document.getElementById('auto-advance-button');
-  if (autoAdvanceEnabled) {
-    button.classList.add('active');
-  } else {
-    button.classList.remove('active');
-  }
-}
-
-// Edit terms functionality
-
-function openEditTermsModal() {
-  document.getElementById('edit-terms-modal').style.display = 'block';
-  document.getElementById('terms-list').value = terms.join('\n');
-}
-
-function closeEditTermsModal() {
-  document.getElementById('edit-terms-modal').style.display = 'none';
-}
-
-function saveTerms() {
-  let newTerms = document.getElementById('terms-list').value.split('\n').filter(term => term.trim() !== '');
-  if (newTerms.length < 2) {
-    alert('You need at least two terms for comparison.');
-    return;
-  }
-  terms = newTerms;
-  closeEditTermsModal();
-  createSurvey();
-}
-
-// Event Listeners
-document.getElementById('edit-terms-button').addEventListener('click', openEditTermsModal);
-document.getElementById('cancel-edit').addEventListener('click', closeEditTermsModal);
-document.getElementById('save-terms').addEventListener('click', saveTerms);
-document.getElementById('auto-advance-button').addEventListener('click', toggleAutoAdvance);
-
-// Initialization
-createSurvey();
-
+const terms = ["Improve Pavement Condition", "Fill System Gaps", "Reduce Congestion", "Reduce Accidents", "Encourage Infill Development", "Improve Climate & Disaster Resiliency", "Improve Access In & Out of the Coachella Valley", "Add Pedestrian & Bicycle Routes", "Improve Air Quality, Environment, and Aesthetics", "Improve Access In & Out of Events", "Build Infrastructure in Disadvantaged Communities", "Improve Mobility for Disadvantaged Commuters"];
+const responses = [], pairs = [];
+let currentPairIndex = 0, selectedCircleIndices = [];
+const createSurvey = () => { for (let e = 0; e < terms.length; e++) for (let t = e + 1; t < terms.length; t++) pairs.push([terms[e], terms[t]]); selectedCircleIndices = Array(pairs.length).fill(null); showNextPair(); };
+const showNextPair = () => { let e = document.getElementById("survey"); if (e.innerHTML = "", currentPairIndex < pairs.length) { let [t, r] = pairs[currentPairIndex], n = document.createElement("div"); n.classList.add("question"); n.innerHTML = `<div class="term-pair"><button class="term-button ${responses[currentPairIndex] === t ? "selected" : ""}" onclick="selectTerm('${t}', 0)" aria-label="Select ${t}">${t}</button><button class="term-button ${responses[currentPairIndex] === r ? "selected" : ""}" onclick="selectTerm('${r}', 1)" aria-label="Select ${r}">${r}</button></div><div class="circle-container">${Array.from({ length: 8 }).map((e, n) => `<div class="circle circle-${getCircleNumber(n)} ${selectedCircleIndices[currentPairIndex] === n ? "selected" : ""}" onclick="selectCircle(${n})" style="${4 === n ? "margin-left: 30px;" : ""}">${getCircleNumber(n)}</div>`).join("")}</div>`; e.appendChild(n); updateCount(); updateProgressBar(); updateTermButtonColors(); updateCircleColors(); updateButtonVisibility(); } else showResults(); };
+const showPreviousPair = () => { currentPairIndex > 0 && (currentPairIndex--, showNextPair()); };
+const advanceToNextPair = () => { if (responses[currentPairIndex] && null !== selectedCircleIndices[currentPairIndex]) { let nextButton = document.getElementById("next-button"); let autoAdvanceEnabled = document.getElementById("auto-advance-icon").classList.contains("active"); if (!autoAdvanceEnabled) { nextButton.style.background = "linear-gradient(270deg, rgba(70,78,84,.6) 0%, rgba(70,78,84,0) 100%)"; setTimeout(() => { currentPairIndex++; currentPairIndex >= pairs.length ? showResults() : showNextPair(); nextButton.style.background = "linear-gradient(270deg, rgba(70,78,84,.4) 0%, rgba(70,78,84,0) 100%)"; }, 150); } else { currentPairIndex++; currentPairIndex >= pairs.length ? showResults() : showNextPair(); } } };
+const selectTerm = (e, t) => { let r = document.querySelectorAll(".term-button"), n = r[t].classList.contains("selected"), o = r[1 - t].classList.contains("selected"); r.forEach((e, r) => { r === t ? e.classList.toggle("selected") : e.classList.remove("selected"); }); n ? (responses[currentPairIndex] = void 0, deselectCircle()) : (responses[currentPairIndex] = e, o && deselectCircle()); updateTermButtonColors(); updateButtonVisibility(); updateCircleColors(); };
+const selectCircle = (e) => { let t = document.querySelectorAll(".circle"), r = !1; t.forEach((t, n) => { n === e ? t.classList.contains("selected") ? (t.classList.remove("selected"), r = !0) : (t.classList.add("selected"), selectAssociatedTerm(n)) : t.classList.remove("selected"); }); r ? selectedCircleIndices[currentPairIndex] = null : selectedCircleIndices[currentPairIndex] = e; updateButtonVisibility(); updateCircleColors(); let o = document.getElementById("auto-advance-icon"); o.classList.contains("active") && setTimeout(() => { advanceToNextPair(); }, 250); };
+const selectAssociatedTerm = (e) => { let t = document.querySelectorAll(".term-button"), r = e < 4 ? 0 : 1, n = pairs[currentPairIndex][r]; t.forEach((e, t) => { t === r ? e.classList.add("selected") : e.classList.remove("selected"); }); responses[currentPairIndex] = n; updateTermButtonColors(); };
+const deselectCircle = () => { let e = document.querySelectorAll(".circle"); e.forEach(e => e.classList.remove("selected")); selectedCircleIndices[currentPairIndex] = null; };
+const updateCircleColors = () => { let e = document.querySelectorAll(".circle"), t = getSelectedTermIndex(); e.forEach((e, r) => { let n = getCircleNumber(r), o = { h: 34 - 6 * (n - 1), s: 90 - 10 * (n - 1), l: 40 }; if (r === selectedCircleIndices[currentPairIndex]) e.style.backgroundColor = "#00660f", e.style.color = "#ffffff", e.classList.remove("ghost"); else { let n = 0; -1 === t ? n = 0 : r < 4 && 0 === t || r >= 4 && 1 === t ? n = 1 : void 0; e.style.backgroundColor = `hsla(${o.h}, ${o.s}%, ${o.l}%, ${n})`; let i = 0 === n ? increaseLuminosity(hexToHSL("#23272a"), 30) : increaseLuminosity(o, 30); e.style.color = i; -1 === t || r < 4 && 0 === t || r >= 4 && 1 === t ? e.classList.remove("ghost") : e.classList.add("ghost"); } e.style.opacity = e.classList.contains("ghost") ? "0.5" : "1"; }); };
+const updateButtonVisibility = () => { let e = document.getElementById("next-button"), t = document.getElementById("previous-button"); if (responses[currentPairIndex] && null !== selectedCircleIndices[currentPairIndex]) { e.style.transition = "opacity 300ms"; e.style.opacity = "1"; e.style.pointerEvents = "auto"; } else { e.style.transition = "none"; e.style.opacity = "0.3"; e.style.pointerEvents = "none"; } t.style.opacity = currentPairIndex > 0 ? "1" : "0.3"; t.style.pointerEvents = currentPairIndex > 0 ? "auto" : "none"; };
+const updateTermButtonColors = () => { document.querySelectorAll(".term-button").forEach(e => { e.classList.contains("selected") ? (e.style.backgroundColor = "#00660f", e.style.color = "#ffffff") : (e.style.backgroundColor = "#1c2124", e.style.color = increaseLuminosity(hexToHSL("#1c2124"), 80)); }); };
+const updateCount = () => { let e = document.getElementById("count"); e.innerHTML = `${currentPairIndex + 1} of ${pairs.length}`; };
+const updateProgressBar = () => { let e = document.getElementById("progress"), t = (currentPairIndex + 1) / pairs.length * 100; e.style.width = `${t}%`; };
+const createLinearGradient = (ctx, color) => { const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width*3, 0); const rgbaColor = color.startsWith('#') ? `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.2)` : color.replace('rgb', 'rgba').replace(')', ', 1)'); gradient.addColorStop(0, rgbaColor); gradient.addColorStop(1, color); return gradient; };
+const showResults = () => { let e = document.querySelector("main"), t = document.getElementById("results"), r = calculateTermScores(), n = Object.entries(r).sort((e, t) => t[1] - e[1]); e.innerHTML = ""; let chartContainer = document.createElement("div"); chartContainer.id = "chart-container"; e.appendChild(chartContainer); let canvas = document.createElement("canvas"); canvas.id = "resultsChart"; chartContainer.appendChild(canvas); const ctx = canvas.getContext('2d'); const primaryColor = '#00660f'; const secondaryColor = '#3e4449'; const primaryGradient = createLinearGradient(ctx, primaryColor); const secondaryGradient = createLinearGradient(ctx, secondaryColor); new Chart(ctx, { type: 'bar', data: { labels: n.map(([term, _]) => term), datasets: [{ data: n.map(([_, score]) => score), backgroundColor: (context) => { const index = context.dataIndex; return index < 4 ? primaryGradient : secondaryGradient; }, borderRadius: 6, borderSkipped: false, }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false }, }, scales: { x: { stacked: true, grid: { display: false }, ticks: { display: false }, border: { display: false }, }, y: { stacked: true, grid: { display: false }, ticks: { display: false }, border: { display: false } } }, layout: { padding: { left: 40, right: 40, top: 80, bottom: 20 } }, barThickness: 67, barPercentage: .9, categoryPercentage: 0.9, animation: { duration: 2000, easing: 'easeOutQuart' }, hover: {mode: null}, }, plugins: [{ id: 'custom-background', beforeDraw: (chart) => { const ctx = chart.ctx; ctx.save(); ctx.fillStyle = '#1c2124'; ctx.fillRect(0, 0, chart.width, chart.height); ctx.restore(); } }, { afterDraw: chart => { const ctx = chart.ctx; const xAxis = chart.scales.x; const yAxis = chart.scales.y; ctx.textAlign = 'center'; ctx.font = '400 30px "Radio Canada"'; ctx.fillStyle = '#b0b0b0'; ctx.fillText('RESULTS', chart.width / 2, 50); chart.data.datasets[0].data.forEach((datapoint, index) => { const y = yAxis.getPixelForTick(index); const x = xAxis.getPixelForValue(datapoint); ctx.save(); ctx.textBaseline = 'middle'; const label = chart.data.labels[index]; const score = datapoint; ctx.font = index < 4 ? '300 32px "Platypi"' : '300 26px "Platypi"'; ctx.textAlign = 'left'; ctx.fillStyle = index < 4 ? '#deefde' : '#b0b0b0'; const labelWidth = ctx.measureText(label).width; ctx.fillText(label, xAxis.left + 20, y); ctx.font = index < 4 ? '400 20px "Radio Canada"' : '400 20px "Radio Canada"'; ctx.textAlign = 'left'; ctx.fillStyle = index < 4 ? '#ffffff' : '#b0b0b0'; const barWidth = x - xAxis.left; const animationProgress = chart.getDatasetMeta(0).data[index].x / x; const scoreWidth = ctx.measureText(score.toString()).width; let scoreX; if (barWidth * animationProgress > labelWidth + 120) { scoreX = xAxis.left + (barWidth * animationProgress) - scoreWidth - 20; } else { scoreX = xAxis.left + labelWidth + 60; } ctx.fillText(score, scoreX, y); ctx.restore(); }); } }] }); ["#survey", "#count", "#auto-advance-container", "#progress-bar", "#previous-button", "#next-button"].forEach(e => { let t = document.querySelector(e); t && t.remove(); }); };
+const calculateTermScores = () => { let e = {}; return terms.forEach(t => e[t] = 0), responses.forEach((t, r) => { if (void 0 !== t && null !== selectedCircleIndices[r]) { let n = getCircleNumber(selectedCircleIndices[r]); e[t] += n; } }), e; };
+const hexToHSL = (e) => { let t = 0, r = 0, n = 0; 4 == e.length ? (t = parseInt(e[1] + e[1], 16), r = parseInt(e[2] + e[2], 16), n = parseInt(e[3] + e[3], 16)) : 7 == e.length && (t = parseInt(e.slice(1, 3), 16), r = parseInt(e.slice(3, 5), 16), n = parseInt(e.slice(5, 7), 16)); t /= 255, r /= 255, n /= 255; let o = Math.min(t, r, n), i = Math.max(t, r, n), l = i - o, a = 0, s = 0, c = 0; return a = 0 == l ? 0 : i == t ? (r - n) / l % 6 : i == r ? (n - t) / l + 2 : (t - r) / l + 4, a = Math.round(60 * a), a < 0 && (a += 360), c = (i + o) / 2, s = 0 == l ? 0 : l / (1 - Math.abs(2 * c - 1)), s = +(100 * s).toFixed(1), c = +(100 * c).toFixed(1), { h: a, s: s, l: c }; };
+const increaseLuminosity = (e, t) => `hsl(${e.h}, ${e.s}%, ${Math.min(e.l + t, 100)}%)`;
+const getCircleNumber = (e) => [4, 3, 2, 1, 1, 2, 3, 4][e];
+const getSelectedTermIndex = () => { let e = document.querySelectorAll(".term-button"); return e[0].classList.contains("selected") ? 0 : e[1].classList.contains("selected") ? 1 : -1; };
+const toggleAutoAdvance = () => { const autoAdvanceIcon = document.getElementById("auto-advance-icon"); autoAdvanceIcon.classList.toggle("active"); const isActive = autoAdvanceIcon.classList.contains("active"); const nextButton = document.getElementById("next-button"); const previousButton = document.getElementById("previous-button"); if (isActive) { nextButton.style.transition = "none"; previousButton.style.transition = "none"; } else { nextButton.style.transition = "background 0.3s, opacity 0.3s"; previousButton.style.transition = "background 0.3s, opacity 0.3s"; } };
+const toggleFullscreen = () => !document.fullscreenElement ? document.documentElement.requestFullscreen().catch(err => console.log(`Error attempting to enable fullscreen: ${err.message}`)) : document.exitFullscreen && document.exitFullscreen();
+const updateFullscreenIcon = () => { const fullscreenIcon = document.getElementById('fullscreen-icon'); document.fullscreenElement ? fullscreenIcon.innerHTML = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>' : fullscreenIcon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>'; };
+document.getElementById("fullscreen-container").addEventListener("click", toggleFullscreen);
+document.addEventListener("fullscreenchange", updateFullscreenIcon);
+document.getElementById("auto-advance-container").addEventListener("click", toggleAutoAdvance);
+document.getElementById("previous-button").addEventListener("click", showPreviousPair);
+document.getElementById("next-button").addEventListener("click", advanceToNextPair);
+document.addEventListener('DOMContentLoaded', () => { document.fonts.ready.then(() => { createSurvey(); }); });
+window.addEventListener('resize', () => { if (document.getElementById('resultsChart')) { showResults(); } });
 </script>
+
+
 </body>
 </html>
