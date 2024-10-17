@@ -47,7 +47,7 @@ main { flex: 1; display: flex; flex-direction: column; justify-content: center; 
 <div id="results"></div>
 </main>
 <script>
-const terms = ["Improve Pavement Condition", "Fill System Gaps", "Reduce Congestion", "Reduce Accidents", "Encourage Infill Development", "Improve Climate & Disaster Resiliency", "Improve Access In & Out of the Coachella Valley", "Add Pedestrian & Bicycle Routes", "Improve Air Quality, Environment, and Aesthetics", "Improve Access In & Out of Events", "Build Infrastructure in Disadvantaged Communities", "Improve Mobility for Disadvantaged People"];
+const terms = ["Improve Pavement Condition", "Fill System Gaps", "Reduce Congestion", "Reduce Accidents", "Reduce VMT / Encourage Infill Development", "Improve Climate & Disaster Resiliency", "Improve Access In & Out of the Coachella Valley", "Add Pedestrian & Bicycle Routes", "Improve Air Quality, Environment, and Aesthetics", "Improve Access In & Out of Events", "Build Infrastructure in Disadvantaged Communities", "Improve Mobility for Disadvantaged People"];
 const responses = [], pairs = [];
 let currentPairIndex = 0, selectedCircleIndices = [];
 const createSurvey = () => { for (let e = 0; e < terms.length; e++) for (let t = e + 1; t < terms.length; t++) pairs.push([terms[e], terms[t]]); selectedCircleIndices = Array(pairs.length).fill(null); showNextPair(); };
