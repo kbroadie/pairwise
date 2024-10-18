@@ -14,9 +14,7 @@ main { flex: 1; display: flex; flex-direction: column; justify-content: center; 
 .term-button:focus { outline: none; }
 .circle-container { display: flex; justify-content: center; align-items: center; position: relative; height: 6vh; width: 80vw; margin: 0.3em auto; }
 .circle { display: flex; justify-content: center; align-items: center; font-size: 3em; width: 12.5%; aspect-ratio: 1 / 1; margin: 0 0.15em; border-radius: 10%; cursor: pointer; font-family: 'Radio Canada', sans-serif; font-style: Regular; font-weight: 500; transition: background-color 0.3s, opacity 0.3s, color 0.3s, transform 0.3s; }
-.circle:not(.ghost):hover { transform: scale(1.05); background-color: #00660f !important; color: #fff !important; }
 .circle.ghost { opacity: 0.5; pointer-events: none; }
-.term-pair:not(:has(.term-button.selected)) ~ .circle-container .circle:hover { transform: none; background-color: inherit !important; color: inherit !important; }
 #next-button, #previous-button { font-size: 1em; display: flex; align-items: center; justify-content: center; color: #919395; border: none; border-radius: 0; position: fixed; top: 0; height: 100vh; width: 9vw; transition: background 0.3s, opacity 0.3s; cursor: pointer; z-index: 1000; }
 #previous-button { left: 0; height: 95vh; color: transparent; background: linear-gradient(90deg, rgba(70,78,84,0) 0%, rgba(70,78,84,0) 100%); }
 #next-button { right: 0; color: transparent; background: linear-gradient(270deg, rgba(70,78,84,.4) 0%, rgba(70,78,84,0) 100%); }
