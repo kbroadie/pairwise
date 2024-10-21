@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms Grid</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Platypi:ital,wght@0,300..800;1,300..800&family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap');
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Radio Canada', sans-serif;
+            background-color: #23272a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1vmin;
+            width: 100vw;
+            height: 100vh;
+            padding: 1vmin;
+            box-sizing: border-box;
+        }
+        .grid-item {
+            background-color: #1c2124;
+            color: #919395;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+            padding: 1vmin;
+        }
+        .grid-item:hover {
+            background-color: #00660f;
+            color: #ffffff;
+        }
+        .grid-item span {
+            font-family: 'Platypi', sans-serif;
+            font-weight: 300;
+            font-size: 40px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container" id="termsGrid"></div>
+
+    <script>
+        const terms = [
+            "Improve Pavement Condition",
+            "Fill System Gaps",
+            "Reduce Congestion",
+            "Reduce Accidents",
+            "Reduce VMT / Encourage Infill Development",
+            "Improve Climate & Disaster Resiliency",
+            "Improve Access In & Out of the Coachella Valley",
+            "Add Pedestrian & Bicycle Routes",
+            "Improve Air Quality, Environment, and Aesthetics",
+            "Improve Access In & Out of Events",
+            "Build Infrastructure in Disadvantaged Communities",
+            "Improve Mobility for Disadvantaged People"
+        ];
+
+        const termsGrid = document.getElementById('termsGrid');
+
+        function createGridItems() {
+            termsGrid.innerHTML = '';
+            terms.forEach(term => {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                const span = document.createElement('span');
+                span.textContent = term;
+                gridItem.appendChild(span);
+                termsGrid.appendChild(gridItem);
+            });
+        }
+        createGridItems();
+        adjustFontSize();
+        window.addEventListener('resize', adjustFontSize);
+    </script>
+</body>
+</html>
