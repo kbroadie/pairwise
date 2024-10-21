@@ -18,20 +18,23 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 2vmin; /* Increased padding for margin around the grid */
+            box-sizing: border-box;
         }
         .grid-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(3, 1fr);
             gap: 1vmin;
-            width: 100vw;
-            height: 100vh;
-            padding: 1vmin;
+            width: 100%;
+            height: 100%;
             box-sizing: border-box;
+            max-width: 1600px; /* Added max-width to prevent excessive stretching on wide screens */
+            max-height: 1200px; /* Added max-height to maintain aspect ratio */
         }
         .grid-item {
             background-color: #1c2124;
-            color: #919395;
+            color: #ffffff;
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -48,17 +51,21 @@
         }
         .grid-item span {
             font-family: 'Platypi', sans-serif;
-            font-weight: 300;
-            font-size: 40px;
+            font-weight: 500;
+            font-size: 44px;
+            line-height: 1.2;
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
     <div class="grid-container" id="termsGrid"></div>
-
     <script>
         const terms = [
             "Improve Pavement Condition",
@@ -74,7 +81,6 @@
             "Build Infrastructure in Disadvantaged Communities",
             "Improve Mobility for Disadvantaged People"
         ];
-
         const termsGrid = document.getElementById('termsGrid');
 
         function createGridItems() {
@@ -88,9 +94,8 @@
                 termsGrid.appendChild(gridItem);
             });
         }
+
         createGridItems();
-        adjustFontSize();
-        window.addEventListener('resize', adjustFontSize);
     </script>
 </body>
 </html>
